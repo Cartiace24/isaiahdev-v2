@@ -220,7 +220,7 @@ function Index() {
 
               {/* name + photo aligned on mobile */}
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 lg:block">
-                <h1 className="min-w-0 text-[2.5rem] leading-[0.85] font-extrabold tracking-tighter break-words uppercase sm:text-6xl lg:text-8xl">
+                <h1 className="min-w-0 text-[2.25rem] leading-[0.85] font-extrabold tracking-tighter break-words uppercase sm:text-6xl lg:text-8xl">
                   {profile.firstName}
                   <br />
                   <span className="text-primary">{profile.lastName}</span>
