@@ -340,15 +340,6 @@ function Index() {
                     </span>
                   ))}
                 </div>
-                <a
-                  href={profile.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="relative mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 font-mono text-xs text-muted-foreground ring-1 ring-border transition-colors hover:text-primary hover:ring-primary/50 sm:w-auto sm:self-start"
-                >
-                  View code
-                  <ArrowUpRight aria-hidden="true" className="size-3.5" />
-                </a>
               </article>
             ))}
           </div>
