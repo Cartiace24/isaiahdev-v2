@@ -1,7 +1,21 @@
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  ArrowUpRight,
+  Code2,
+  Headphones,
+  Languages,
+  MonitorSmartphone,
+  Terminal,
+  Wrench,
+} from "lucide-react";
 import { LoadingScreen } from "@/components/LoadingScreen";
-import { useScrollProgress, useScrollReveal, useScrollY } from "@/hooks/use-scroll-reveal";
+import {
+  useActiveSection,
+  useScrollProgress,
+  useScrollReveal,
+  useScrollY,
+} from "@/hooks/use-scroll-reveal";
 import {
   certifications,
   education,
@@ -34,11 +48,22 @@ export const Route = createFileRoute("/")({
 });
 
 const navLinks = [
-  { href: "#projects", label: "Projects" },
-  { href: "#work", label: "Work" },
-  { href: "#stack", label: "Tech Stack" },
-  { href: "#contact", label: "Contact" },
+  { href: "#projects", id: "projects", label: "Projects" },
+  { href: "#work", id: "work", label: "Work" },
+  { href: "#stack", id: "stack", label: "Tech Stack" },
+  { href: "#contact", id: "contact", label: "Contact" },
 ];
+
+const sectionIds = navLinks.map((l) => l.id);
+
+const groupIcons: Record<string, typeof Code2> = {
+  "Web Stack": Code2,
+  "Core Languages": Terminal,
+  "Desktop & Runtime": MonitorSmartphone,
+  "Tools & Workflow": Wrench,
+  "IT & Admin": Headphones,
+  Languages: Languages,
+};
 
 function SectionHeading({ label, meta }: { label: string; meta?: string }) {
   return (
@@ -49,10 +74,18 @@ function SectionHeading({ label, meta }: { label: string; meta?: string }) {
   );
 }
 
+function spotlight(event: MouseEvent<HTMLElement>) {
+  const rect = event.currentTarget.getBoundingClientRect();
+  event.currentTarget.style.setProperty("--mx", `${event.clientX - rect.left}px`);
+  event.currentTarget.style.setProperty("--my", `${event.clientY - rect.top}px`);
+}
+
 function Index() {
   const [menuOpen, setMenuOpen] = useState(false);
   const scrollProgress = useScrollProgress();
   const scrollY = useScrollY();
+  const activeSection = useActiveSection(sectionIds);
+  const activeLabel = navLinks.find((l) => l.id === activeSection)?.label ?? "Intro";
   useScrollReveal();
 
   return (
@@ -68,18 +101,34 @@ function Index() {
               <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-primary" />
               <span className="label-mono truncate text-muted-foreground">Open to work</span>
             </span>
+            {/* mobile active-section indicator */}
+            <span className="label-mono flex min-w-0 items-center gap-2 rounded-full bg-primary/10 px-2.5 py-1 text-primary md:hidden">
+              <span className="size-1.5 shrink-0 rounded-full bg-primary" />
+              <span className="truncate">{activeLabel}</span>
+            </span>
           </div>
 
           <div className="hidden items-center gap-6 md:flex">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="label-mono transition-colors hover:text-primary"
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.id;
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  aria-current={isActive ? "true" : undefined}
+                  className={`label-mono relative py-1 transition-colors hover:text-primary ${
+                    isActive ? "text-primary" : "text-foreground"
+                  }`}
+                >
+                  {link.label}
+                  <span
+                    className={`absolute inset-x-0 -bottom-0.5 h-px origin-left bg-primary transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      isActive ? "scale-x-100" : "scale-x-0"
+                    }`}
+                  />
+                </a>
+              );
+            })}
           </div>
 
           <button
@@ -115,19 +164,32 @@ function Index() {
           }`}
         >
           <div className="mx-auto flex max-w-5xl flex-col gap-1 px-6 py-4">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center justify-between border-b border-border py-3 text-lg font-bold tracking-tight transition-colors hover:text-primary"
-              >
-                {link.label}
-                <span aria-hidden="true" className="label-mono text-muted-foreground">
-                  →
-                </span>
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isActive = activeSection === link.id;
+              return (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMenuOpen(false)}
+                  aria-current={isActive ? "true" : undefined}
+                  className={`flex items-center justify-between border-b border-border py-3 text-lg font-bold tracking-tight transition-colors hover:text-primary ${
+                    isActive ? "text-primary" : ""
+                  }`}
+                >
+                  <span className="flex items-center gap-3">
+                    <span
+                      className={`h-px transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        isActive ? "w-6 bg-primary" : "w-0 bg-transparent"
+                      }`}
+                    />
+                    {link.label}
+                  </span>
+                  <span aria-hidden="true" className="label-mono text-muted-foreground">
+                    →
+                  </span>
+                </a>
+              );
+            })}
             <div className="mt-4 flex flex-wrap gap-2">
               <a
                 href={profile.emailHref}
@@ -152,26 +214,29 @@ function Index() {
 
       <main className="mx-auto max-w-5xl px-6 pt-16 pb-28 lg:pt-24 lg:pb-28">
         <header className="animate-reveal">
-          <div className="grid items-center gap-10 lg:grid-cols-[1fr_340px] lg:gap-14">
+          <div className="grid items-center gap-10 lg:grid-cols-[1fr_400px] lg:gap-14">
             <div>
               <p className="label-mono mb-6 text-primary">{profile.role}</p>
 
               {/* name + photo aligned on mobile */}
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 lg:block">
-                <h1 className="text-5xl leading-[0.85] font-extrabold tracking-tighter text-balance uppercase sm:text-6xl lg:text-8xl">
+                <h1 className="min-w-0 text-[2.5rem] leading-[0.85] font-extrabold tracking-tighter break-words uppercase sm:text-6xl lg:text-8xl">
                   {profile.firstName}
                   <br />
                   <span className="text-primary">{profile.lastName}</span>
                 </h1>
-                <div className="relative shrink-0 lg:hidden">
+                <div className="group relative shrink-0 lg:hidden">
                   <div className="absolute -inset-2 rounded-3xl bg-primary/20 blur-xl" />
-                  <img
-                    src={profile.photo}
-                    alt={`Portrait of ${profile.name}`}
-                    width={256}
-                    height={320}
-                    className="relative aspect-[4/5] w-28 rounded-2xl object-cover ring-1 ring-primary/40 sm:w-36"
-                  />
+                  <div className="relative overflow-hidden rounded-2xl bg-surface ring-1 ring-primary/40 scan-beam">
+                    <img
+                      src={profile.photo}
+                      alt={`Portrait of ${profile.name}`}
+                      width={256}
+                      height={320}
+                      className="photo-duotone aspect-[4/5] w-28 object-cover object-top sm:w-36"
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-grid opacity-40" />
+                  </div>
                 </div>
               </div>
 
@@ -215,7 +280,7 @@ function Index() {
               >
                 <div className="absolute -inset-6 rounded-[2rem] bg-primary/20 blur-3xl transition-opacity duration-500 group-hover:opacity-80" />
                 <div className="absolute -inset-px rounded-[1.75rem] bg-gradient-to-b from-primary/60 via-border to-transparent" />
-                <div className="relative overflow-hidden rounded-[1.75rem] bg-surface">
+                <div className="relative overflow-hidden rounded-[1.75rem] bg-surface scan-beam">
                   <div className="pointer-events-none absolute inset-0 z-10 bg-grid opacity-40" />
                   <div className="pointer-events-none absolute inset-0 z-10 scanline" />
                   <img
@@ -223,13 +288,16 @@ function Index() {
                     alt={`Portrait of ${profile.name}`}
                     width={680}
                     height={850}
-                    className="aspect-[4/5] w-full object-cover grayscale transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] group-hover:grayscale-0"
+                    className="photo-duotone aspect-[4/5] w-full object-cover object-top group-hover:scale-[1.04]"
                   />
                   <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-gradient-to-t from-background to-transparent px-4 pt-10 pb-3">
                     <span className="label-mono text-primary">ID / 001</span>
                     <span className="label-mono text-muted-foreground">SANTA ROSA</span>
                   </div>
                 </div>
+                {/* corner brackets */}
+                <span className="pointer-events-none absolute -top-2 -left-2 z-20 size-6 border-t border-l border-primary/70" />
+                <span className="pointer-events-none absolute -right-2 -bottom-2 z-20 size-6 border-r border-b border-primary/70" />
               </div>
             </div>
           </div>
@@ -242,29 +310,45 @@ function Index() {
               <article
                 key={project.index}
                 data-reveal
+                onMouseMove={spotlight}
                 style={{ ["--reveal-delay" as string]: `${i * 90}ms` }}
-                className="group rounded-2xl bg-surface p-6 ring-1 ring-border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:ring-primary/40"
+                className="group card-spotlight flex flex-col rounded-2xl bg-surface p-6 ring-1 ring-border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:ring-primary/40"
               >
-                <div className="flex items-start justify-between">
+                <div className="relative flex items-start justify-between">
                   <span className="label-mono text-muted-foreground">{project.index}</span>
                   <span className="label-mono rounded-full px-2 py-0.5 text-muted-foreground ring-1 ring-border transition-colors group-hover:text-primary group-hover:ring-primary/50">
                     {project.status}
                   </span>
                 </div>
-                <h3 className="mt-6 text-xl font-bold tracking-tight">{project.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                <h3 className="relative mt-6 flex items-center gap-2 text-xl font-bold tracking-tight">
+                  {project.title}
+                  <ArrowUpRight
+                    aria-hidden="true"
+                    className="size-4 -translate-x-1 text-primary opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0 group-hover:opacity-100"
+                  />
+                </h3>
+                <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">
                   {project.description}
                 </p>
-                <div className="mt-5 flex flex-wrap gap-2">
+                <div className="relative mt-5 flex flex-wrap gap-2">
                   {project.tech.map((tech) => (
                     <span
                       key={tech}
-                      className="rounded-full bg-primary/10 px-2.5 py-1 font-mono text-[10px] text-primary"
+                      className="rounded-full bg-primary/10 px-2.5 py-1 font-mono text-[10px] text-primary transition-colors group-hover:bg-primary/20"
                     >
                       {tech}
                     </span>
                   ))}
                 </div>
+                <a
+                  href={profile.github}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="relative mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 font-mono text-xs text-muted-foreground ring-1 ring-border transition-colors hover:text-primary hover:ring-primary/50 sm:w-auto sm:self-start"
+                >
+                  View code
+                  <ArrowUpRight aria-hidden="true" className="size-3.5" />
+                </a>
               </article>
             ))}
           </div>
@@ -318,22 +402,36 @@ function Index() {
           <section id="stack" className="space-y-16 scroll-mt-20">
             <div data-reveal>
               <SectionHeading label="Tech Stack" />
-              <div className="space-y-7">
-                {skillGroups.map((group) => (
-                  <div key={group.label}>
-                    <h3 className="label-mono mb-3 text-muted-foreground">{group.label}</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {group.items.map((item) => (
-                        <span
-                          key={item}
-                          className="rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-border transition-colors hover:text-primary hover:ring-primary/50"
-                        >
-                          {item}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {skillGroups.map((group, i) => {
+                  const Icon = groupIcons[group.label] ?? Code2;
+                  return (
+                    <div
+                      key={group.label}
+                      data-reveal
+                      onMouseMove={spotlight}
+                      style={{ ["--reveal-delay" as string]: `${i * 70}ms` }}
+                      className="group card-spotlight rounded-2xl bg-surface p-5 ring-1 ring-border transition-colors duration-500 hover:ring-primary/40"
+                    >
+                      <div className="relative mb-4 flex items-center gap-3">
+                        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
+                          <Icon aria-hidden="true" className="size-4" />
                         </span>
-                      ))}
+                        <h3 className="label-mono leading-tight text-foreground">{group.label}</h3>
+                      </div>
+                      <div className="relative flex flex-wrap gap-2">
+                        {group.items.map((item) => (
+                          <span
+                            key={item}
+                            className="rounded-full px-2.5 py-1 text-xs font-medium text-muted-foreground ring-1 ring-border transition-colors hover:text-primary hover:ring-primary/50"
+                          >
+                            {item}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

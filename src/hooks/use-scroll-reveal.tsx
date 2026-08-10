@@ -67,3 +67,33 @@ export function useScrollY() {
   }, []);
   return y;
 }
+
+/** Returns the id of the section currently in view. */
+export function useActiveSection(ids: string[]) {
+  const [active, setActive] = React.useState(ids[0] ?? "");
+
+  React.useEffect(() => {
+    const sections = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
+    if (!sections.length) return;
+
+    const onScroll = () => {
+      const line = window.scrollY + window.innerHeight * 0.35;
+      let current = sections[0]!.id;
+      for (const section of sections) {
+        if (section.offsetTop <= line) current = section.id;
+      }
+      setActive(current);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [ids.join(",")]);
+
+  return active;
+}
