@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { LoadingScreen } from "@/components/LoadingScreen";
+import { useScrollProgress, useScrollReveal, useScrollY } from "@/hooks/use-scroll-reveal";
 import {
   certifications,
   education,
@@ -8,7 +10,6 @@ import {
   projects,
   skillGroups,
 } from "@/data/portfolio";
-
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -25,62 +26,156 @@ export const Route = createFileRoute("/")({
         content:
           "Projects, work experience, certifications, and skills of Isaiah Saul F. Serrano, web developer and IT support technician.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
 });
 
+const navLinks = [
+  { href: "#projects", label: "Projects" },
+  { href: "#work", label: "Work" },
+  { href: "#stack", label: "Tech Stack" },
+  { href: "#contact", label: "Contact" },
+];
+
 function SectionHeading({ label, meta }: { label: string; meta?: string }) {
   return (
-    <div className="mb-10 flex items-baseline justify-between border-b border-foreground/80 pb-4">
+    <div className="mb-10 flex items-baseline justify-between gap-4 border-b border-foreground/80 pb-4">
       <h2 className="label-mono font-bold text-foreground">{label}</h2>
-      {meta ? <span className="label-mono text-muted-foreground">{meta}</span> : null}
+      {meta ? <span className="label-mono shrink-0 text-muted-foreground">{meta}</span> : null}
     </div>
   );
 }
 
 function Index() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const scrollProgress = useScrollProgress();
+  const scrollY = useScrollY();
+  useScrollReveal();
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary selection:text-primary-foreground">
       <LoadingScreen />
 
       <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
-          <div className="flex items-center gap-4">
-            <span className="label-mono font-bold text-primary">ISAIAH.DEV</span>
-            <span className="h-3 w-px bg-border" />
-            <span className="flex items-center gap-2">
-              <span className="size-1.5 animate-pulse rounded-full bg-primary" />
-              <span className="label-mono text-muted-foreground">Open to work</span>
+        <div className="mx-auto grid h-14 max-w-5xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-6">
+          <div className="flex min-w-0 items-center gap-4">
+            <span className="label-mono shrink-0 font-bold text-primary">ISAIAH.DEV</span>
+            <span className="hidden h-3 w-px shrink-0 bg-border sm:block" />
+            <span className="hidden items-center gap-2 sm:flex">
+              <span className="size-1.5 shrink-0 animate-pulse rounded-full bg-primary" />
+              <span className="label-mono truncate text-muted-foreground">Open to work</span>
             </span>
           </div>
-          <div className="flex gap-6">
-            <a
-              href={profile.github}
-              target="_blank"
-              rel="noreferrer"
-              className="label-mono transition-colors hover:text-primary"
-            >
-              GitHub
-            </a>
-            <a href={profile.emailHref} className="label-mono transition-colors hover:text-primary">
-              Email
-            </a>
+
+          <div className="hidden items-center gap-6 md:flex">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="label-mono transition-colors hover:text-primary"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            className="flex size-9 shrink-0 flex-col items-center justify-center gap-1.5 rounded-full ring-1 ring-border transition-colors hover:ring-primary/50 md:hidden"
+          >
+            <span
+              className={`block h-px w-4 bg-foreground transition-transform duration-300 ${
+                menuOpen ? "translate-y-[3.5px] rotate-45" : ""
+              }`}
+            />
+            <span
+              className={`block h-px w-4 bg-foreground transition-transform duration-300 ${
+                menuOpen ? "-translate-y-[3.5px] -rotate-45" : ""
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* scroll progress */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-px origin-left bg-primary"
+          style={{ transform: `scaleX(${scrollProgress})` }}
+        />
+
+        {/* mobile menu */}
+        <div
+          className={`overflow-hidden border-t border-border bg-background/95 backdrop-blur-md transition-[max-height,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] md:hidden ${
+            menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <div className="mx-auto flex max-w-5xl flex-col gap-1 px-6 py-4">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center justify-between border-b border-border py-3 text-lg font-bold tracking-tight transition-colors hover:text-primary"
+              >
+                {link.label}
+                <span aria-hidden="true" className="label-mono text-muted-foreground">
+                  →
+                </span>
+              </a>
+            ))}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <a
+                href={profile.emailHref}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 rounded-full bg-primary px-4 py-2.5 text-center font-mono text-xs font-medium text-primary-foreground"
+              >
+                Email me
+              </a>
+              <a
+                href={profile.github}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 rounded-full px-4 py-2.5 text-center font-mono text-xs text-muted-foreground ring-1 ring-border"
+              >
+                GitHub
+              </a>
+            </div>
           </div>
         </div>
       </nav>
 
-      <main className="mx-auto max-w-5xl px-6 py-20 lg:py-28">
+      <main className="mx-auto max-w-5xl px-6 pt-16 pb-28 lg:pt-24 lg:pb-28">
         <header className="animate-reveal">
-          <div className="grid items-end gap-12 lg:grid-cols-[1fr_260px]">
+          <div className="grid items-center gap-10 lg:grid-cols-[1fr_340px] lg:gap-14">
             <div>
               <p className="label-mono mb-6 text-primary">{profile.role}</p>
-              <h1 className="text-6xl leading-[0.85] font-extrabold tracking-tighter text-balance uppercase lg:text-8xl">
-                {profile.firstName}
-                <br />
-                <span className="text-primary">{profile.lastName}</span>
-              </h1>
-              <p className="mt-8 max-w-[52ch] text-lg leading-relaxed text-muted-foreground">
+
+              {/* name + photo aligned on mobile */}
+              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 lg:block">
+                <h1 className="text-5xl leading-[0.85] font-extrabold tracking-tighter text-balance uppercase sm:text-6xl lg:text-8xl">
+                  {profile.firstName}
+                  <br />
+                  <span className="text-primary">{profile.lastName}</span>
+                </h1>
+                <div className="relative shrink-0 lg:hidden">
+                  <div className="absolute -inset-2 rounded-3xl bg-primary/20 blur-xl" />
+                  <img
+                    src={profile.photo}
+                    alt={`Portrait of ${profile.name}`}
+                    width={256}
+                    height={320}
+                    className="relative aspect-[4/5] w-28 rounded-2xl object-cover ring-1 ring-primary/40 sm:w-36"
+                  />
+                </div>
+              </div>
+
+              <p className="mt-8 max-w-[52ch] text-base leading-relaxed text-muted-foreground sm:text-lg">
                 {profile.summary}
               </p>
               <div className="mt-8 flex flex-wrap gap-3 font-mono text-xs">
@@ -100,35 +195,55 @@ function Index() {
                 >
                   {profile.githubLabel}
                 </a>
-                <span className="rounded-full px-4 py-2 text-muted-foreground ring-1 ring-border">
+                <a
+                  href={`tel:${profile.phone.replace(/\s/g, "")}`}
+                  className="rounded-full px-4 py-2 text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-primary/50"
+                >
                   {profile.phone}
-                </span>
+                </a>
                 <span className="rounded-full px-4 py-2 text-muted-foreground ring-1 ring-border">
                   {profile.location}
                 </span>
               </div>
             </div>
+
+            {/* desktop photo — larger, with effects */}
             <div className="hidden lg:block">
-              <div className="overflow-hidden rounded-2xl bg-surface ring-1 ring-border">
-                <img
-                  src={profile.photo}
-                  alt={`Portrait of ${profile.name}`}
-                  width={512}
-                  height={640}
-                  className="aspect-[4/5] w-full object-cover"
-                />
+              <div
+                className="group relative animate-float-slow"
+                style={{ transform: `translateY(${Math.min(scrollY, 400) * -0.06}px)` }}
+              >
+                <div className="absolute -inset-6 rounded-[2rem] bg-primary/20 blur-3xl transition-opacity duration-500 group-hover:opacity-80" />
+                <div className="absolute -inset-px rounded-[1.75rem] bg-gradient-to-b from-primary/60 via-border to-transparent" />
+                <div className="relative overflow-hidden rounded-[1.75rem] bg-surface">
+                  <div className="pointer-events-none absolute inset-0 z-10 bg-grid opacity-40" />
+                  <div className="pointer-events-none absolute inset-0 z-10 scanline" />
+                  <img
+                    src={profile.photo}
+                    alt={`Portrait of ${profile.name}`}
+                    width={680}
+                    height={850}
+                    className="aspect-[4/5] w-full object-cover grayscale transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] group-hover:grayscale-0"
+                  />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-gradient-to-t from-background to-transparent px-4 pt-10 pb-3">
+                    <span className="label-mono text-primary">ID / 001</span>
+                    <span className="label-mono text-muted-foreground">SANTA ROSA</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </header>
 
-        <section className="animate-reveal mt-28 [animation-delay:150ms]">
+        <section id="projects" className="mt-28 scroll-mt-20" data-reveal>
           <SectionHeading label="Selected Projects (04)" meta="2023 — Present" />
           <div className="grid gap-x-8 gap-y-12 md:grid-cols-2">
-            {projects.map((project) => (
+            {projects.map((project, i) => (
               <article
                 key={project.index}
-                className="group rounded-2xl bg-surface p-6 ring-1 ring-border transition-colors hover:ring-primary/40"
+                data-reveal
+                style={{ ["--reveal-delay" as string]: `${i * 90}ms` }}
+                className="group rounded-2xl bg-surface p-6 ring-1 ring-border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:ring-primary/40"
               >
                 <div className="flex items-start justify-between">
                   <span className="label-mono text-muted-foreground">{project.index}</span>
@@ -156,11 +271,16 @@ function Index() {
         </section>
 
         <div className="mt-32 grid gap-20 lg:grid-cols-[1.5fr_1fr] lg:gap-24">
-          <section className="animate-reveal [animation-delay:300ms]">
+          <section id="work" className="scroll-mt-20" data-reveal>
             <SectionHeading label="Work History" />
             <div className="space-y-10">
-              {experience.map((job) => (
-                <div key={job.title + job.period} className="relative border-l border-border pl-8">
+              {experience.map((job, i) => (
+                <div
+                  key={job.title + job.period}
+                  data-reveal
+                  style={{ ["--reveal-delay" as string]: `${i * 90}ms` }}
+                  className="relative border-l border-border pl-8"
+                >
                   <div
                     className={`absolute top-1.5 -left-[4.5px] size-2 rounded-full ${
                       job.current ? "bg-primary" : "bg-border"
@@ -181,7 +301,7 @@ function Index() {
               ))}
             </div>
 
-            <div className="mt-16">
+            <div className="mt-16" data-reveal>
               <SectionHeading label="Education" />
               <div className="rounded-2xl bg-surface p-6 ring-1 ring-border">
                 <span className="label-mono text-muted-foreground">{education.period}</span>
@@ -195,8 +315,8 @@ function Index() {
             </div>
           </section>
 
-          <section className="animate-reveal space-y-16 [animation-delay:450ms]">
-            <div>
+          <section id="stack" className="space-y-16 scroll-mt-20">
+            <div data-reveal>
               <SectionHeading label="Tech Stack" />
               <div className="space-y-7">
                 {skillGroups.map((group) => (
@@ -206,7 +326,7 @@ function Index() {
                       {group.items.map((item) => (
                         <span
                           key={item}
-                          className="rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-border"
+                          className="rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-border transition-colors hover:text-primary hover:ring-primary/50"
                         >
                           {item}
                         </span>
@@ -217,12 +337,12 @@ function Index() {
               </div>
             </div>
 
-            <div>
+            <div data-reveal>
               <SectionHeading label="Certifications" />
               <div className="space-y-5">
                 {certifications.map((cert) => (
                   <div key={cert.title} className="group flex items-start justify-between gap-4">
-                    <div>
+                    <div className="min-w-0">
                       <p className="text-sm font-bold">{cert.title}</p>
                       <p className="label-mono mt-1 text-muted-foreground">{cert.issuer}</p>
                     </div>
@@ -236,23 +356,63 @@ function Index() {
           </section>
         </div>
 
-        <section className="animate-reveal mt-32 rounded-3xl bg-surface p-10 ring-1 ring-border md:p-14">
+        <section
+          id="contact"
+          className="mt-32 scroll-mt-20 rounded-3xl bg-surface p-8 ring-1 ring-border md:p-14"
+          data-reveal
+        >
           <p className="label-mono text-primary">Let's work together</p>
-          <h2 className="mt-4 max-w-[18ch] text-4xl font-extrabold tracking-tighter uppercase md:text-6xl">
+          <h2 className="mt-4 max-w-[18ch] text-3xl font-extrabold tracking-tighter uppercase sm:text-4xl md:text-6xl">
             Available for new roles
           </h2>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <a
+              href={profile.emailHref}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex justify-center rounded-full bg-primary px-6 py-3 font-mono text-sm font-medium text-primary-foreground transition-opacity hover:opacity-85"
+            >
+              {profile.email}
+            </a>
+            <a
+              href={`tel:${profile.phone.replace(/\s/g, "")}`}
+              className="inline-flex justify-center rounded-full px-6 py-3 font-mono text-sm text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-primary/50"
+            >
+              Call {profile.phone}
+            </a>
+          </div>
+        </section>
+      </main>
+
+      {/* mobile contact bar */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 py-3 backdrop-blur-md md:hidden">
+        <div className="flex gap-2">
           <a
             href={profile.emailHref}
             target="_blank"
             rel="noreferrer"
-            className="mt-8 inline-flex rounded-full bg-primary px-6 py-3 font-mono text-sm font-medium text-primary-foreground transition-opacity hover:opacity-85"
+            className="flex-1 rounded-full bg-primary px-4 py-2.5 text-center font-mono text-xs font-medium text-primary-foreground"
           >
-            {profile.email}
+            Email
           </a>
-        </section>
-      </main>
+          <a
+            href={`tel:${profile.phone.replace(/\s/g, "")}`}
+            className="flex-1 rounded-full px-4 py-2.5 text-center font-mono text-xs text-muted-foreground ring-1 ring-border"
+          >
+            Call
+          </a>
+          <a
+            href={profile.github}
+            target="_blank"
+            rel="noreferrer"
+            className="flex-1 rounded-full px-4 py-2.5 text-center font-mono text-xs text-muted-foreground ring-1 ring-border"
+          >
+            GitHub
+          </a>
+        </div>
+      </div>
 
-      <footer className="mt-24 border-t border-border">
+      <footer className="mt-24 border-t border-border pb-20 md:pb-0">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 px-6 py-10 md:flex-row">
           <p className="label-mono text-muted-foreground">
             © {new Date().getFullYear()} {profile.name}

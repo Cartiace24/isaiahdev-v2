@@ -4,7 +4,7 @@ export const profile = {
   lastName: "SERRANO",
   role: "Web Developer / IT Support",
   summary:
-    "I build practical web and desktop tools, and keep hardware, systems, and people running. BSIT graduate with academic distinction, based in Santa Rosa, Laguna.",
+    "I build practical web and desktop tools—and keep hardware, systems, and people running",
   email: "saulisaiah24@gmail.com",
   emailHref: "https://mail.google.com/mail/?view=cm&fs=1&to=saulisaiah24@gmail.com",
   github: "https://github.com/Cartiace24",

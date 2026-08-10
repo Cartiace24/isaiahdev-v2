@@ -3,21 +3,34 @@ import { useEffect, useRef, useState } from "react";
 export function LoadingScreen() {
   const [progress, setProgress] = useState(0);
   const [done, setDone] = useState(false);
+  const [wipe, setWipe] = useState(false);
   const [hidden, setHidden] = useState(false);
   const startedAt = useRef(0);
 
   useEffect(() => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      setProgress(100);
+      setHidden(true);
+      document.documentElement.classList.add("boot-done");
+      return;
+    }
+
     startedAt.current = Date.now();
     let frame = 0;
     const tick = () => {
       const elapsed = Date.now() - startedAt.current;
-      const pct = Math.min(100, Math.round((elapsed / 1600) * 100));
+      const pct = Math.min(100, Math.round((elapsed / 2200) * 100));
       setProgress(pct);
       if (pct < 100) {
         frame = requestAnimationFrame(tick);
       } else {
         setDone(true);
-        window.setTimeout(() => setHidden(true), 700);
+        window.setTimeout(() => setWipe(true), 650);
+        window.setTimeout(() => {
+          setHidden(true);
+          document.documentElement.classList.add("boot-done");
+        }, 1700);
       }
     };
     frame = requestAnimationFrame(tick);
@@ -33,13 +46,9 @@ export function LoadingScreen() {
 
   if (hidden) return null;
 
-  return (
-    <div
-      aria-hidden="true"
-      className={`fixed inset-0 z-[100] flex flex-col justify-between bg-background px-6 py-8 transition-opacity duration-500 md:px-12 md:py-12 ${
-        done ? "pointer-events-none opacity-0" : "opacity-100"
-      }`}
-    >
+  const Face = (
+    <div className="absolute inset-0 flex h-screen flex-col justify-between px-6 py-8 md:px-12 md:py-12">
+      <div className="pointer-events-none absolute inset-0 bg-background" />
       <div className="pointer-events-none absolute inset-0 bg-grid opacity-60" />
       <div className="pointer-events-none absolute inset-0 scanline" />
 
@@ -64,14 +73,36 @@ export function LoadingScreen() {
 
       <div className="relative flex items-end justify-between gap-4">
         <span className="label-mono text-muted-foreground">
-          {progress < 40
-            ? "Loading assets…"
-            : progress < 80
-              ? "Compiling profile…"
-              : "Ready"}
+          {progress < 40 ? "Loading assets…" : progress < 80 ? "Compiling profile…" : "Ready"}
         </span>
         <span className="label-mono text-primary">Santa Rosa, PH</span>
       </div>
+    </div>
+  );
+
+  return (
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-[100] overflow-hidden">
+      {/* the boot screen itself, split into two halves that part like curtains */}
+      <div
+        className={`absolute inset-x-0 top-0 h-1/2 overflow-hidden transition-transform duration-[900ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          wipe ? "-translate-y-full" : "translate-y-0"
+        }`}
+      >
+        {Face}
+      </div>
+      <div
+        className={`absolute inset-x-0 bottom-0 h-1/2 overflow-hidden transition-transform duration-[900ms] ease-[cubic-bezier(0.76,0,0.24,1)] ${
+          wipe ? "translate-y-full" : "translate-y-0"
+        }`}
+      >
+        <div className="absolute inset-x-0 bottom-0 h-screen">{Face}</div>
+      </div>
+
+      <div
+        className={`absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-primary transition-opacity duration-500 ${
+          done ? "opacity-100" : "opacity-0"
+        }`}
+      />
     </div>
   );
 }
