@@ -8,11 +8,15 @@ export function LoadingScreen() {
   const startedAt = useRef(0);
 
   useEffect(() => {
+    const finish = () => {
+      setHidden(true);
+      document.documentElement.classList.add("boot-done");
+    };
+
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) {
       setProgress(100);
-      setHidden(true);
-      document.documentElement.classList.add("boot-done");
+      finish();
       return;
     }
 
@@ -22,19 +26,20 @@ export function LoadingScreen() {
       const elapsed = Date.now() - startedAt.current;
       const pct = Math.min(100, Math.round((elapsed / 2200) * 100));
       setProgress(pct);
-      if (pct < 100) {
-        frame = requestAnimationFrame(tick);
-      } else {
-        setDone(true);
-        window.setTimeout(() => setWipe(true), 650);
-        window.setTimeout(() => {
-          setHidden(true);
-          document.documentElement.classList.add("boot-done");
-        }, 1700);
-      }
+      if (pct < 100) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+
+    const t1 = window.setTimeout(() => setDone(true), 2200);
+    const t2 = window.setTimeout(() => setWipe(true), 2850);
+    const t3 = window.setTimeout(finish, 3800);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
   }, []);
 
   useEffect(() => {
@@ -99,8 +104,8 @@ export function LoadingScreen() {
       </div>
 
       <div
-        className={`absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-primary transition-opacity duration-500 ${
-          done ? "opacity-100" : "opacity-0"
+        className={`absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-primary transition-opacity duration-300 ${
+          done && !wipe ? "opacity-100" : "opacity-0"
         }`}
       />
     </div>
