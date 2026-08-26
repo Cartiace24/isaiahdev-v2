@@ -304,7 +304,7 @@ function Index() {
         </header>
 
         <section id="projects" className="mt-28 scroll-mt-20" data-reveal>
-          <SectionHeading label="Selected Projects (04)" meta="2023 — Present" />
+          <SectionHeading label="Selected Projects (05)" meta="2023 — Present" />
           <div className="grid gap-x-8 gap-y-12 md:grid-cols-2">
             {projects.map((project, i) => (
               <article
@@ -312,7 +312,7 @@ function Index() {
                 data-reveal
                 onMouseMove={spotlight}
                 style={{ ["--reveal-delay" as string]: `${i * 90}ms` }}
-                className="group card-spotlight flex flex-col rounded-2xl bg-surface p-6 ring-1 ring-border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:ring-primary/40"
+                className="group card-spotlight relative flex flex-col rounded-2xl bg-surface p-6 ring-1 ring-border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:ring-primary/40"
               >
                 <div className="relative flex items-start justify-between">
                   <span className="label-mono text-muted-foreground">{project.index}</span>
@@ -321,7 +321,19 @@ function Index() {
                   </span>
                 </div>
                 <h3 className="relative mt-6 flex items-center gap-2 text-xl font-bold tracking-tight">
-                  {project.title}
+                  {project.repo ? (
+                    <a
+                      href={project.repo}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`${project.title} — view on GitHub`}
+                      className="after:absolute after:inset-0 after:rounded-2xl after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary transition-colors"
+                    >
+                      {project.title}
+                    </a>
+                  ) : (
+                    project.title
+                  )}
                   <ArrowUpRight
                     aria-hidden="true"
                     className="size-4 -translate-x-1 text-primary opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0 group-hover:opacity-100"

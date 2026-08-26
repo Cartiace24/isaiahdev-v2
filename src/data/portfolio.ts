@@ -14,17 +14,36 @@ export const profile = {
   photo: "/profile.png",
 };
 
-export const projects = [
+type Project = {
+  index: string;
+  title: string;
+  status: string;
+  description: string;
+  tech: string[];
+  repo?: string;
+};
+
+export const projects: Project[] = [
   {
     index: "01",
+    title: "Barangay Management System",
+    status: "DESKTOP",
+    description:
+      "An offline-first desktop application for managing barangay records and administrative operations, including residents, households, KK profiling, documents, users, roles, and local database management.",
+    tech: ["Tauri 2", "React", "TypeScript", "Rust", "SQLite", "Drizzle ORM"],
+    repo: "https://github.com/Cartiace24/Barangay-Management-System",
+  },
+  {
+    index: "02",
     title: "Sortly — File Organizer",
     status: "DESKTOP",
     description:
       "Desktop file organizer that automatically sorts files into categorized folders for cleaner workspace management.",
     tech: ["Electron Builder", "Node.js", "JavaScript", "HTML", "CSS"],
+    repo: "https://github.com/Cartiace24/sortly",
   },
   {
-    index: "02",
+    index: "03",
     title: "#HopeAI (Thesis)",
     status: "THESIS",
     description:
@@ -32,7 +51,7 @@ export const projects = [
     tech: ["PHP", "SQL", "JavaScript", "API", "HTML", "CSS"],
   },
   {
-    index: "03",
+    index: "04",
     title: "Personal Portfolio",
     status: "LIVE",
     description:
@@ -40,12 +59,13 @@ export const projects = [
     tech: ["React", "TypeScript", "Tailwind CSS", "Vite"],
   },
   {
-    index: "04",
+    index: "05",
     title: "Job Application Tracker",
     status: "DESKTOP",
     description:
       "Desktop tracker to organize applications, monitor statuses, store notes, and manage job links in one responsive interface.",
     tech: ["Electron Builder", "Node.js", "JavaScript", "HTML", "CSS"],
+    repo: "https://github.com/Cartiace24/jobhuntapp",
   },
 ];
 
