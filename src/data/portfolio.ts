@@ -21,6 +21,7 @@ type Project = {
   description: string;
   tech: string[];
   repo?: string;
+  demo?: string;
 };
 
 export const projects: Project[] = [
@@ -66,6 +67,16 @@ export const projects: Project[] = [
       "Desktop tracker to organize applications, monitor statuses, store notes, and manage job links in one responsive interface.",
     tech: ["Electron Builder", "Node.js", "JavaScript", "HTML", "CSS"],
     repo: "https://github.com/Cartiace24/jobhuntapp",
+  },
+  {
+    index: "06",
+    title: "SINO G?",
+    status: "LIVE",
+    description:
+      "A social planning app that helps groups quickly find a time when everyone is available.",
+    tech: ["React", "TypeScript", "Supabase", "Tailwind CSS", "TanStack Query", "Vite"],
+    repo: "https://github.com/Cartiace24/Sino-G",
+    demo: "https://sino-g.pages.dev/",
   },
 ];
 

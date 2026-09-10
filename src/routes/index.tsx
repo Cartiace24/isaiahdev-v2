@@ -304,56 +304,91 @@ function Index() {
         </header>
 
         <section id="projects" className="mt-28 scroll-mt-20" data-reveal>
-          <SectionHeading label="Selected Projects (05)" meta="2023 — Present" />
+          <SectionHeading
+            label={`Selected Projects (${String(projects.length).padStart(2, "0")})`}
+            meta="2023 — Present"
+          />
           <div className="grid gap-x-8 gap-y-12 md:grid-cols-2">
-            {projects.map((project, i) => (
-              <article
-                key={project.index}
-                data-reveal
-                onMouseMove={spotlight}
-                style={{ ["--reveal-delay" as string]: `${i * 90}ms` }}
-                className="group card-spotlight relative flex flex-col rounded-2xl bg-surface p-6 ring-1 ring-border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:ring-primary/40"
-              >
-                <div className="relative flex items-start justify-between">
-                  <span className="label-mono text-muted-foreground">{project.index}</span>
-                  <span className="label-mono rounded-full px-2 py-0.5 text-muted-foreground ring-1 ring-border transition-colors group-hover:text-primary group-hover:ring-primary/50">
-                    {project.status}
-                  </span>
-                </div>
-                <h3 className="relative mt-6 flex items-center gap-2 text-xl font-bold tracking-tight">
-                  {project.repo ? (
-                    <a
-                      href={project.repo}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`${project.title} — view on GitHub`}
-                      className="after:absolute after:inset-0 after:rounded-2xl after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary transition-colors"
-                    >
-                      {project.title}
-                    </a>
-                  ) : (
-                    project.title
-                  )}
-                  <ArrowUpRight
-                    aria-hidden="true"
-                    className="size-4 -translate-x-1 text-primary opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0 group-hover:opacity-100"
-                  />
-                </h3>
-                <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">
-                  {project.description}
-                </p>
-                <div className="relative mt-5 flex flex-wrap gap-2">
-                  {project.tech.map((tech) => (
-                    <span
-                      key={tech}
-                      className="rounded-full bg-primary/10 px-2.5 py-1 font-mono text-[10px] text-primary transition-colors group-hover:bg-primary/20"
-                    >
-                      {tech}
+            {projects.map((project, i) => {
+              const primaryLink = project.demo ?? project.repo;
+              const primaryLabel = project.demo ? "view live demo" : "view on GitHub";
+              return (
+                <article
+                  key={project.index}
+                  data-reveal
+                  onMouseMove={spotlight}
+                  style={{ ["--reveal-delay" as string]: `${i * 90}ms` }}
+                  className="group card-spotlight relative flex flex-col rounded-2xl bg-surface p-6 ring-1 ring-border transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:ring-primary/40"
+                >
+                  <div className="relative flex items-start justify-between">
+                    <span className="label-mono text-muted-foreground">{project.index}</span>
+                    <span className="label-mono rounded-full px-2 py-0.5 text-muted-foreground ring-1 ring-border transition-colors group-hover:text-primary group-hover:ring-primary/50">
+                      {project.status}
                     </span>
-                  ))}
-                </div>
-              </article>
-            ))}
+                  </div>
+                  <h3 className="relative mt-6 flex items-center gap-2 text-xl font-bold tracking-tight">
+                    {primaryLink ? (
+                      <a
+                        href={primaryLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`${project.title} — ${primaryLabel}`}
+                        className="after:absolute after:inset-0 after:rounded-2xl after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary transition-colors"
+                      >
+                        {project.title}
+                      </a>
+                    ) : (
+                      project.title
+                    )}
+                    <ArrowUpRight
+                      aria-hidden="true"
+                      className="size-4 -translate-x-1 text-primary opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0 group-hover:opacity-100"
+                    />
+                  </h3>
+                  <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {project.description}
+                  </p>
+                  <div className="relative mt-5 flex flex-wrap gap-2">
+                    {project.tech.map((tech) => (
+                      <span
+                        key={tech}
+                        className="rounded-full bg-primary/10 px-2.5 py-1 font-mono text-[10px] text-primary transition-colors group-hover:bg-primary/20"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                  {primaryLink || project.repo ? (
+                    <div className="relative z-10 mt-auto flex flex-wrap gap-2 pt-6">
+                      {project.demo ? (
+                        <a
+                          href={project.demo}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`${project.title} — view live demo`}
+                          className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 font-mono text-[11px] font-medium text-primary-foreground transition-opacity hover:opacity-85"
+                        >
+                          Live Demo
+                          <ArrowUpRight aria-hidden="true" className="size-3" />
+                        </a>
+                      ) : null}
+                      {project.repo ? (
+                        <a
+                          href={project.repo}
+                          target="_blank"
+                          rel="noreferrer"
+                          aria-label={`${project.title} — view on GitHub`}
+                          className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 font-mono text-[11px] text-muted-foreground ring-1 ring-border transition-colors hover:text-foreground hover:ring-primary/50"
+                        >
+                          GitHub
+                          <ArrowUpRight aria-hidden="true" className="size-3" />
+                        </a>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
           </div>
         </section>
 
