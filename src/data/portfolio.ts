@@ -86,7 +86,7 @@ export const projects: Project[] = [
       "Twofold is a private digital scrapbook for couples where they can keep photos, memories, notes, places, milestones, and wishlists together.",
     tech: ["React", "TypeScript", "Vite", "Tailwind CSS", "Supabase", "Leaflet"],
     repo: "https://github.com/Cartiace24/twofold",
-    demo: "https://twofold-indol.vercel.app/",
+    demo: "https://twofold-nine.vercel.app/",
   },
 ];
 
