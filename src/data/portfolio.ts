@@ -78,6 +78,16 @@ export const projects: Project[] = [
     repo: "https://github.com/Cartiace24/Sino-G",
     demo: "https://sino-g.pages.dev/",
   },
+  {
+    index: "07",
+    title: "Twofold",
+    status: "LIVE",
+    description:
+      "Twofold is a private digital scrapbook for couples where they can keep photos, memories, notes, places, milestones, and wishlists together.",
+    tech: ["React", "TypeScript", "Vite", "Tailwind CSS", "Supabase", "Leaflet"],
+    repo: "https://github.com/Cartiace24/twofold",
+    demo: "https://twofold-indol.vercel.app/",
+  },
 ];
 
 export const experience = [
